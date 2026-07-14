@@ -62,9 +62,24 @@ def main():
     if "--hover" in argv:
         hover = True
         argv.remove("--hover")
+    force = "--force" in argv
+    if force:
+        argv.remove("--force")
     key, ids = argv[0], [i.strip().replace("-", ":") for i in argv[1].split(",")]
     out = pathlib.Path(argv[2] if len(argv) > 2 else "figma")
     tok = token()
+    # CACHE-FIRST. Every REST endpoint (including /v1/files) sits under a plan-based
+    # monthly quota and 429s with Retry-After up to hours/days. A node that is already
+    # on disk is NEVER re-fetched — the cache is the workspace, the API is only for
+    # what is missing. Use --force to deliberately refresh.
+    if not force:
+        cached = [i for i in ids if (out / "nodes" / f"{i.replace(':','-')}.json").exists()]
+        if cached:
+            print(f"cache-first: {len(cached)}/{len(ids)} node(s) already in {out}/nodes — skipped "
+                  f"(--force to re-fetch)")
+        ids = [i for i in ids if i not in cached]
+        if not ids:
+            return
     if hover:
         (out / "hover").mkdir(parents=True, exist_ok=True)
         nodes = get(f"/files/{key}/nodes?ids={urllib.parse.quote(','.join(ids))}", tok)

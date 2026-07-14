@@ -61,7 +61,9 @@ Restart the session; the skill is picked up automatically, or invoke it explicit
 - **Python 3.9+** — the scripts use only the standard library (no `pip install`)
 - A modern browser for the fidelity report (it computes its numbers live, in-page)
 - A **Figma personal access token** (below); a paid Figma seat is NOT required —
-  everything runs over the REST API, which is not seat-limited like the MCP server
+  everything runs over the REST API. Note the REST API has **plan-based monthly quotas
+  on every endpoint** (even node JSON can 429 for hours) — the skill works cache-first,
+  so each node is fetched once and everything afterwards runs offline from `figma/nodes/`
 
 ## Setup (one-time)
 
@@ -160,10 +162,14 @@ the design never actually shows.
 `figma_spec.py` marks image fills carrying an `imageTransform` (rotation/flip) as
 `IMG(<ref>*)` — ignore that asterisk and your background will render upside-down.
 
-## If renders are rate-limited
+## If the API rate-limits you
 
-Only `GET /v1/images` (the render endpoint) is scarce; node JSON and image fills keep
-working. When it 429s, ask for a **PNG @2x export of the page frame** and slice it
+Renders (`GET /v1/images`) are the scarcest, but **every** endpoint — including
+`/v1/files` node JSON — sits under a plan-based quota and can 429 with an hours-long
+Retry-After. The skill is built for this: node JSON is pulled once and cached in
+`figma/nodes/` (the puller skips anything already on disk), and all scripts read the
+cache, never the API. If you hit 429 mid-acquisition, the error prints the Retry-After;
+everything already cached keeps working. When it 429s, ask for a **PNG @2x export of the page frame** and slice it
 locally using the section offsets from the JSON. If you use **SVG** as a visual
 reference, you must enable **"Outline text"** on export — otherwise the SVG references a
 font you don't have and the reference lies to you. Details in `SKILL.md` §6.5.2.
