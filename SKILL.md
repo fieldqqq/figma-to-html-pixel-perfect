@@ -1503,6 +1503,9 @@ Before marking the work complete, verify:
 - [ ] `fidelity-report.html` was generated, opened, and handed to the user
 - [ ] The **text audit** was read, not just the geometry rows
 - [ ] Every row in it is green, or every non-green row appears in the difference log
+- [ ] The build→report→fix→regenerate loop was run to exhaustion (§20.5) — no section was
+      left "structurally done but not numerically matched", and the user was never asked
+      whether to continue while non-green rows remained
 - [ ] No layout rule was weakened just to turn a metric green
 - [ ] `figma_lint.py` passes: no invented spacing, size, colour, `<br>` or inline `<svg>`
 - [ ] Icon audit is green, or every hand-drawn / missing icon is justified in the difference log
@@ -1564,6 +1567,41 @@ figma-to-html-pixel-perfect/
 
 `SKILL.md` is the only required file, but **use the scripts** — they encode §6.5.1–6.5.3.
 Re-deriving them by hand is how the reading-contract bugs get reintroduced.
+
+---
+
+## 20.5 Completion Standard — audit until green, do not ask
+
+**Do not stop at "structurally correct" and hand it over. Do not ask permission to keep
+going. Iterate until the report is green or every remaining row is a proven, documented
+non-defect.**
+
+The loop is not optional and it is not "one pass":
+
+```
+build → figma_report.py → read EVERY row → fix the largest deltas → regenerate → repeat
+```
+
+Rules:
+
+- **A section is done when its row says `match`**, not when it "looks about right" and not
+  when the structure is in place. Structure without the per-section numeric pass is an
+  unfinished section, and reporting it as finished is a false claim.
+- **Never ask "shall I keep going?" while non-green rows remain.** The user asked for the
+  design; the remaining rows *are* the difference between what you built and the design.
+  Continue automatically. Only stop early for a genuine external blocker (quota, missing
+  asset, missing font) — and then report the blocker, not a fake completion.
+- **Every breakpoint the user confirmed gets its own full loop.** Split the second frame
+  into per-section nodes (`figma/nodes-<width>/`) and run the same report against it; the
+  design width is read from the nodes, so no tooling changes are needed. A breakpoint with
+  no report is a breakpoint that was guessed.
+- Stop only when: every row is green, **or** every non-green row is written into the
+  difference log with evidence that it is noise (an overlapping design variant, a
+  matcher artifact) rather than a build defect.
+- If a fix makes another row worse, that is normal — re-read the whole report each round,
+  not just the row you touched.
+
+The number of rounds is not a cost to be minimised. Shipping a wrong page is.
 
 ---
 
