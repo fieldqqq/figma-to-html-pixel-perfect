@@ -1,6 +1,6 @@
 {
   "name": "figma-to-html-pixel-perfect",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Claude Code skill: Figma → pixel-perfect HTML/CSS with a self-verifying fidelity pipeline (114 documented failure modes). Running this package installs the skill into ~/.claude/skills.",
   "bin": {
     "figma-to-html-pixel-perfect": "bin/install.js"
