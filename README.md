@@ -38,7 +38,14 @@ wrong. Every rule in `SKILL.md` is a guard against a failure that actually happe
 
 ## Install
 
-**Personal skill**
+**One-liner (npx, no git history)**
+
+```bash
+npx tiged fieldqqq/figma-to-html-perfect-pixel \
+  ~/.claude/skills/figma-to-html-pixel-perfect
+```
+
+**Personal skill (git — recommended if you want `git pull` updates)**
 
 ```bash
 git clone https://github.com/fieldqqq/figma-to-html-perfect-pixel \
